@@ -12,6 +12,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile "com.sparkjava:spark-core:2.7.2"
     compile "org.slf4j:slf4j-simple:1.7.25"
+    compile "com.auth0:java-jwt:3.4.1"
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.0"
 }

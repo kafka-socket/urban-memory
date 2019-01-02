@@ -21,6 +21,11 @@ class WebSocketHandler : WebSocketListener, WebSocketPingPongListener {
     override fun onWebSocketConnect(s: Session?) {
         session = s
         logger.info("Incoming connection with [${userAgent()}]")
+        val token = session!!.upgradeRequest.parameterMap["token"]!!.first()
+        logger.info("Token is [$token]")
+        val auth = Auth(token)
+        val user = auth.user()
+        logger.info("User [$user] authenticated")
         heartbeatJob = heartbeat()
     }
 
@@ -47,7 +52,7 @@ class WebSocketHandler : WebSocketListener, WebSocketPingPongListener {
     }
 
     override fun onWebSocketError(cause: Throwable?) {
-        TODO("not implemented")
+        logger.error(cause.toString())
     }
 
     private fun userAgent() : String {
