@@ -1,5 +1,6 @@
+package urban.memory
+
 import spark.Spark.*
-import urban.memory.WebSocketHandler
 
 fun main(args: Array<String>) {
     webSocket("/ws", WebSocketHandler::class.java)
