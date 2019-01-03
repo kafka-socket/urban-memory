@@ -1,10 +1,13 @@
 package urban.memory
 
-import org.junit.jupiter.api.Assertions.*
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
-class TokenSpec : Spek({
+object TokenSpec : Spek({
     describe("A Token") {
         val valid = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwidXNlcl91aWQiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMn0.UhOiwlNwWRy9I_uTVQ4dyUSt8MHtT9uJiMJiJjVH87M"
         val invalid = "qqq"
