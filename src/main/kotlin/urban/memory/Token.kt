@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory
 
 
 class Token(private val config: Config, token: String) {
+    constructor(token: String): this(Config(), token)
+
     private val logger: Logger = LoggerFactory.getLogger(Token::class.java)
 
     private val algorithm = Algorithm.HMAC256(config.jwtSecret)
