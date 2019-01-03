@@ -1,11 +1,12 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.11'
+    id 'io.gitlab.arturbosch.detekt' version '1.0.0-RC12'
+
 }
 
 version '1.0-SNAPSHOT'
 
 repositories {
-    mavenCentral()
     jcenter()
 }
 
@@ -35,6 +36,12 @@ test {
     useJUnitPlatform {
         includeEngines "spek2"
     }
+}
+
+detekt {
+    toolVersion = "1.0.0-RC12"
+    input = files("src/main/kotlin")
+    filters = ".*/resources/.*,.*/build/.*"
 }
 
 compileKotlin {
