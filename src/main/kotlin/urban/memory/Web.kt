@@ -11,11 +11,13 @@ import spark.Spark.webSocket
 import spark.Spark.before
 import spark.Spark.init
 import spark.Spark.halt
+import spark.Spark.port
 
-class Web {
+class Web(private val config: Config) {
     private val logger: Logger = LoggerFactory.getLogger(Web::class.java)
 
     fun start() {
+        port(config.port)
         webSocket("/ws", WebSocketHandler::class.java)
         before("/ws", this::auth)
         init()
@@ -26,7 +28,7 @@ class Web {
         logger.info("token received [$token]")
         when {
             token.isNullOrBlank() -> halt(UNAUTHORIZED_401, "Token required")
-            !Token(token).isOk() -> halt(FORBIDDEN_403, "Not allowed")
+            !Token(config, token).isOk() -> halt(FORBIDDEN_403, "Not allowed")
             else -> logger.info("Token is valid")
         }
     }
