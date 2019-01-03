@@ -23,8 +23,7 @@ class WebSocketHandler : WebSocketListener, WebSocketPingPongListener {
         logger.info("Incoming connection with [${userAgent()}]")
         val token = session!!.upgradeRequest.parameterMap["token"]!!.first()
         logger.info("Token is [$token]")
-        val auth = Auth(token)
-        val user = auth.user()
+        val user = Token(token).user()
         logger.info("User [$user] authenticated")
         heartbeatJob = heartbeat()
     }

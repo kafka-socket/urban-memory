@@ -9,8 +9,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 
-class Auth(token: String) {
-    private val logger: Logger = LoggerFactory.getLogger(Auth::class.java)
+class Token(token: String) {
+    private val logger: Logger = LoggerFactory.getLogger(Token::class.java)
 
     private val algorithm = Algorithm.HMAC256("your-256-bit-secret")
     private val verifier: JWTVerifier = JWT.require(algorithm).build()
