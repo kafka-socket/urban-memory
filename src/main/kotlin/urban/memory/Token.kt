@@ -20,8 +20,8 @@ class Token(token: String) {
         return decoded != null
     }
 
-    fun user(): String {
-        return decoded?.getClaim("user_uid")?.asString().orEmpty()
+    fun user(): String? {
+        return decoded?.getClaim("user_uid")?.asString()
     }
 
     private fun verifyToken(token: String) : DecodedJWT? {
