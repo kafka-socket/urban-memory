@@ -9,4 +9,6 @@ class Config {
     val heartbeatIntervalMillis: Long = config.getLong("urban-memory.heartbeat-interval-millis")
     val jwtSecret: String = config.getString("urban-memory.jwt-secret")
     val jwtUserKey: String = config.getString("urban-memory.jwt-user-key")
+
+    val producer = config.getConfig("urban-memory.kafka-producer")
 }
