@@ -17,26 +17,32 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 class WebSocketHandler : WebSocketAdapter(), WebSocketPingPongListener {
-    private var user: String? = null
+    private var channel: WebSocketChannel? = null
     private var heartbeatJob: Job? = null
     private val heartbeatIntervalMillis: Long = Config.heartbeatIntervalMillis
     private val logger: Logger = LoggerFactory.getLogger(WebSocketHandler::class.java)
 
     override fun onWebSocketConnect(sess: Session?) {
         super.onWebSocketConnect(sess)
-        logger.info("Incoming connection with [${userAgent()}]")
         val token = session!!.upgradeRequest.parameterMap["token"]!!.first()
         logger.info("Token is [$token]")
-        user = Token(token).user()
+        val user = Token(token).user()!!
         logger.info("User [$user] authenticated")
-        KafkaClient.send(user!!, headers = headers("init"))
+        WebSocketChannel(user, session, remote).also {
+            Channels.add(it)
+            channel = it
+            it.onInit()
+        }
         heartbeatJob = heartbeat()
     }
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
         super.onWebSocketClose(statusCode, reason)
         logger.info("Connection closed with code $statusCode:[$reason]")
-        KafkaClient.send(user.orEmpty(), headers = headers("terminate"))
+        channel?.onClose()
+        if (channel != null) {
+            Channels.remove(channel!!)
+        }
         heartbeatJob?.cancel()
     }
 
@@ -45,8 +51,8 @@ class WebSocketHandler : WebSocketAdapter(), WebSocketPingPongListener {
     }
 
     override fun onWebSocketText(message: String?) {
-        logger.info("Message received [$message] from session [${userAgent()}]")
-        KafkaClient.send(user!!, message.orEmpty(), headers("text"))
+        logger.debug("Message received [$message]")
+        channel?.onText(message.orEmpty())
     }
 
     override fun onWebSocketPing(payload: ByteBuffer?) {
@@ -55,15 +61,11 @@ class WebSocketHandler : WebSocketAdapter(), WebSocketPingPongListener {
     }
 
     override fun onWebSocketPong(payload: ByteBuffer?) {
-        logger.info("Pong received: [${StandardCharsets.UTF_8.decode(payload)}]")
+        logger.debug("Pong received: [${StandardCharsets.UTF_8.decode(payload)}]")
     }
 
     override fun onWebSocketError(cause: Throwable?) {
         logger.error(cause.toString())
-    }
-
-    private fun userAgent() : String {
-        return session?.upgradeRequest?.getHeader("user-agent") ?: "Unknown"
     }
 
     private fun heartbeat() : Job {
@@ -73,9 +75,5 @@ class WebSocketHandler : WebSocketAdapter(), WebSocketPingPongListener {
                 delay(heartbeatIntervalMillis)
             }
         }
-    }
-
-    private fun headers(type: String) : MutableIterable<Header> {
-        return mutableListOf<Header>(KafkaHeader("type", type))
     }
 }

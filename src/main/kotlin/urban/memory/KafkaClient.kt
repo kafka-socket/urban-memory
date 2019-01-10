@@ -1,8 +1,5 @@
 package urban.memory
 
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -68,5 +65,6 @@ object KafkaClient {
         val user = record.key()
         val message = record.value()
         logger.info("Received [$message] for [$user]")
+        Channels.byKey(user)?.forEach { it.send(message) }
     }
 }
