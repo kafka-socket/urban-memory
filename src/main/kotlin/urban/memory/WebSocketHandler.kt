@@ -5,6 +5,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.delay
+import org.apache.kafka.common.header.Header
+import org.apache.kafka.common.header.Headers
 
 import org.eclipse.jetty.websocket.api.Session
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
@@ -15,23 +17,26 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 
 class WebSocketHandler : WebSocketAdapter(), WebSocketPingPongListener {
+    private var user: String? = null
     private var heartbeatJob: Job? = null
+    private val heartbeatIntervalMillis: Long = Config.heartbeatIntervalMillis
     private val logger: Logger = LoggerFactory.getLogger(WebSocketHandler::class.java)
-    private val config = Config()
 
     override fun onWebSocketConnect(sess: Session?) {
         super.onWebSocketConnect(sess)
         logger.info("Incoming connection with [${userAgent()}]")
         val token = session!!.upgradeRequest.parameterMap["token"]!!.first()
         logger.info("Token is [$token]")
-        val user = Token(config, token).user()
+        user = Token(token).user()
         logger.info("User [$user] authenticated")
+        KafkaClient.send(user!!, headers = headers("init"))
         heartbeatJob = heartbeat()
     }
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
         super.onWebSocketClose(statusCode, reason)
         logger.info("Connection closed with code $statusCode:[$reason]")
+        KafkaClient.send(user.orEmpty(), headers = headers("terminate"))
         heartbeatJob?.cancel()
     }
 
@@ -41,6 +46,7 @@ class WebSocketHandler : WebSocketAdapter(), WebSocketPingPongListener {
 
     override fun onWebSocketText(message: String?) {
         logger.info("Message received [$message] from session [${userAgent()}]")
+        KafkaClient.send(user!!, message.orEmpty(), headers("text"))
     }
 
     override fun onWebSocketPing(payload: ByteBuffer?) {
@@ -64,8 +70,12 @@ class WebSocketHandler : WebSocketAdapter(), WebSocketPingPongListener {
         return GlobalScope.launch {
             while (isActive) {
                 remote.sendPing(ByteBuffer.wrap("beat".toByteArray()))
-                delay(config.heartbeatIntervalMillis)
+                delay(heartbeatIntervalMillis)
             }
         }
+    }
+
+    private fun headers(type: String) : MutableIterable<Header> {
+        return mutableListOf<Header>(KafkaHeader("type", type))
     }
 }

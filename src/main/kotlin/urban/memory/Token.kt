@@ -9,12 +9,12 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 
-class Token(private val config: Config, token: String) {
-    constructor(token: String): this(Config(), token)
-
+class Token(token: String) {
     private val logger: Logger = LoggerFactory.getLogger(Token::class.java)
+    private val jwtSecret = Config.jwtSecret
+    private val userClaimKey = Config.userClaimKey
 
-    private val algorithm = Algorithm.HMAC256(config.jwtSecret)
+    private val algorithm = Algorithm.HMAC256(jwtSecret)
     private val verifier: JWTVerifier = JWT.require(algorithm).build()
     private val decoded: DecodedJWT? = verifyToken(token)
 
@@ -23,7 +23,7 @@ class Token(private val config: Config, token: String) {
     }
 
     fun user(): String? {
-        return decoded?.getClaim(config.jwtUserKey)?.asString()
+        return decoded?.getClaim(userClaimKey)?.asString()
     }
 
     private fun verifyToken(token: String) : DecodedJWT? {
