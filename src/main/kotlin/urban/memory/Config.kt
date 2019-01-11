@@ -1,5 +1,6 @@
 package urban.memory
 
+import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 
 object Config {
@@ -10,5 +11,5 @@ object Config {
     val jwtSecret: String = config.getString("urban-memory.jwt-secret")
     val userClaimKey: String = config.getString("urban-memory.user-claim-key")
 
-    val kafka = config.getConfig("urban-memory.kafka")
+    val kafka: Config = config.getConfig("urban-memory.kafka")
 }

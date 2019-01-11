@@ -1,6 +1,6 @@
 package urban.memory
 
 fun main(args: Array<String>) {
-    KafkaClient.runConsumer()
+    KafkaSubscriber().run()
     Web().start()
 }
