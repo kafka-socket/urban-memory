@@ -51,7 +51,7 @@ class WebSocketHandler : WebSocketAdapter(), WebSocketPingPongListener {
     }
 
     override fun onWebSocketText(message: String?) {
-        logger.debug("Message received [$message]")
+        logger.info("Message received [$message]")
         channel?.onText(message.orEmpty())
     }
 

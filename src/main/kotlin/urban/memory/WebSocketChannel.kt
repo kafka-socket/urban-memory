@@ -12,7 +12,7 @@ class WebSocketChannel(
     session: Session,
     private val remote: RemoteEndpoint
 ) : Channel {
-    private val logger: Logger = LoggerFactory.getLogger(WebSocketHandler::class.java)
+    private val logger: Logger = LoggerFactory.getLogger(WebSocketChannel::class.java)
 
     init {
         session.upgradeRequest.getHeader("user-agent").also {
@@ -25,10 +25,12 @@ class WebSocketChannel(
     }
 
     fun onInit() {
+        logger.info("onInit")
         KafkaClient.send(key, headers = headers("init"))
     }
 
     fun onClose() {
+        logger.info("onClose")
         KafkaClient.send(key, headers = headers("terminate"))
     }
 
