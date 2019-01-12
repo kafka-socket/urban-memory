@@ -41,6 +41,9 @@ class KafkaSubscriber {
         val user = record.key()
         val message = record.value()
         logger.info("Received [$message] for [$user]")
-        Channels.byKey(user)?.forEach { it.send(message) }
+        Channels.byKey(user)?.forEach {
+            logger.info("Sending [$message] via ws-channel $it")
+            it.send(message)
+        }
     }
 }

@@ -71,6 +71,7 @@ class WebSocketHandler : WebSocketAdapter(), WebSocketPingPongListener {
     private fun heartbeat() : Job {
         return GlobalScope.launch {
             while (isActive) {
+                logger.info("send ping to [$channel]")
                 remote.sendPing(ByteBuffer.wrap("beat".toByteArray()))
                 delay(heartbeatIntervalMillis)
             }

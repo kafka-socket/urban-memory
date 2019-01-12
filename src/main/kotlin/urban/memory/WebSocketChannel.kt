@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 
 class WebSocketChannel(
     override val key: String,
-    session: Session,
+    private val session: Session,
     private val remote: RemoteEndpoint
 ) : Channel {
     private val logger: Logger = LoggerFactory.getLogger(WebSocketChannel::class.java)
@@ -21,6 +21,7 @@ class WebSocketChannel(
     }
 
     override fun send(message: String) {
+        logger.info("Sending [$message] to open-session?: [${session.isOpen}]")
         remote.sendString(message)
     }
 
