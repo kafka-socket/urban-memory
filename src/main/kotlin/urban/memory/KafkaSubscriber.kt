@@ -26,7 +26,7 @@ class KafkaSubscriber {
     private fun initConsumer() : KafkaConsumer<String, String> {
         val props = Properties()
         props["bootstrap.servers"] = config.getString("bootstrap.servers")
-        props["group.id"] = "default"
+        props["group.id"] = "urban-memory"
         props["enable.auto.commit"] = "true"
         props["auto.commit.interval.ms"] = 1_000
         props["key.deserializer"] = "org.apache.kafka.common.serialization.StringDeserializer"
